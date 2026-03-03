@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>UFSM Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-app: #001f24;
+            --bg-card: #303030;
+            --text-primary: #e3e3e3;
+            --text-secondary: #b0b0b0;
+            --fab-bg: #cce8f8;
+            --fab-icon: #003b5c;
+            --nav-bg: #1e1e1e;
+            --active-item: #ffb74d;
+        }
+        
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            background-color: var(--bg-app);
+            -webkit-font-smoothing: antialiased;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        .card-rounded { border-radius: 12px; }
+        
+        .food-item {
+            font-size: 14px;
+            color: #e3e3e3;
+            line-height: 1.3;
+            margin-bottom: 2px;
+        }
+        
+        .food-detail {
+            font-size: 13px;
+            color: #b0b0b0;
+            margin-bottom: 2px;
+        }
+
+        .fab-container {
+            position: fixed;
+            bottom: 90px;
+            right: 16px;
+            z-index: 0;
+        }
+        
+        .material-symbols-rounded {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* --- ANIMAÇÕES DO MENU --- */
+        .drawer-transition { 
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            will-change: transform;
+        }
+
+        .overlay-transition {
+            transition: opacity 0.3s ease-out, visibility 0.3s;
+        }
+        
+        .overlay-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .overlay-hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        /* Ocultar barra de rolagem do menu */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="pb-24">
+
+    <div id="overlay" class="fixed inset-0 bg-black/60 z-40 overlay-transition overlay-hidden backdrop-blur-[2px]" onclick="toggleMenu()"></div>
+
+    <aside id="drawer" class="fixed inset-y-0 left-0 w-[300px] bg-[#002229] z-50 transform -translate-x-full drawer-transition shadow-2xl h-full flex flex-col">
+        <div class="bg-[#004b6b] p-5 pt-8 pb-6">
+            <div class="flex justify-between items-start">
+                <div class="space-y-0.5">
+                    <p class="text-sm font-normal text-white">Bom dia</p>
+                    <p class="font-bold text-[17px] leading-tight text-white uppercase tracking-wide">PEDRO RUIZ SANGOI</p>
+                </div>
+                
+                <div class="relative mt-1 cursor-pointer group" onclick="document.getElementById('input-foto').click()">
+                    <img id="img-perfil" src="https://via.placeholder.com/150" class="rounded-full w-[60px] h-[60px] border-2 border-white object-cover shadow-sm transition-opacity group-hover:opacity-80" alt="Perfil">
+                    
+                    <div class="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow-md flex items-center justify-center w-6 h-6">
+                        <i class="fa-solid fa-camera text-gray-600 text-[10px]"></i>
+                    </div>
+                    
+                    <input type="file" id="input-foto" class="hidden" accept="image/*" onchange="carregarFoto(event)">
+                </div>
+            </div>
+            <div class="mt-5 text-[14px] font-medium text-white space-y-0.5">
+                <p>Saldo do RU: <span class="font-bold">R$ 15,81</span></p>
+                <p>Mensagens não lidas: 58</p>
+            </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto no-scrollbar py-2 bg-[#001f24]">
+            <a href="#" onclick="toggleMenu()" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fas fa-home w-8 text-[20px] text-white"></i>
+                <span class="font-medium text-white text-[15px]">Início</span>
+            </a>
+            
+            <div class="border-t border-white/10 my-1"></div>
+            
+            <div class="px-5 py-3 text-[15px] text-[#cae7f5] font-medium">Restaurante Universitário</div>
+            
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-book-open w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Cardápio</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fas fa-dollar-sign w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Extrato</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fas fa-coins w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Recarga online</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="far fa-calendar-alt w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Agendar</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-list-check w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Agendamentos e Refeições</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-magnifying-glass w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Filas agendamento</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-money-bill-transfer w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Transferência de crédito</span>
+            </a>
+            <a href="carteira.html" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-regular fa-id-card w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">e-Carteira</span>
+            </a>
+            <a href="#" onclick="document.getElementById('input-foto').click()" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-camera w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Alteração de foto</span>
+            </a>
+            
+            <div class="border-t border-white/10 my-1"></div>
+
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-book w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Biblioteca</span>
+            </a>
+
+            <div class="border-t border-white/10 my-1"></div>
+
+            <div class="px-5 py-3 text-[15px] text-[#cae7f5] font-medium">Estudante</div>
+
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-file-lines w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Minhas disciplinas</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="far fa-calendar-alt w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Meus horários de aula</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-align-justify w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Avaliação ensino-aprendiza...</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-calendar-check w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Oficinas PRAE</span>
+            </a>
+            
+            <div class="border-t border-white/10 my-1"></div>
+
+            <div class="px-5 py-3 text-[15px] text-[#cae7f5] font-medium">Ônibus</div>
+
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-bus w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Centro -> UFSM</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-bus w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">UFSM -> Centro</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-circle-info w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Sobre - Ônibus</span>
+            </a>
+
+            <div class="border-t border-white/10 my-1"></div>
+
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-regular fa-envelope w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Mensagens</span>
+            </a>
+
+            <div class="border-t border-white/10 my-1"></div>
+
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-list-check w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Questionário PDTI 2025</span>
+            </a>
+
+            <div class="border-t border-white/10 my-1"></div>
+
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-leaf w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Saúde Mental</span>
+            </a>
+
+            <div class="border-t border-white/10 my-1"></div>
+
+            <div class="px-5 py-3 text-[15px] text-[#cae7f5] font-medium">Utilitários</div>
+
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-circle-exclamation w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Registro de problema</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-key w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Alterar senha</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-heart w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">UFSM Pública</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-user-graduate w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Moodle</span>
+            </a>
+
+            <div class="border-t border-white/10 my-1"></div>
+
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-info-circle w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Sobre</span>
+            </a>
+
+            <div class="border-t border-white/10 my-1"></div>
+
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-sign-out-alt w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Sair</span>
+            </a>
+        </nav>
+    </aside>
+
+
+    <header class="flex items-center px-4 h-14 sticky top-0 bg-[#001f24] z-30 shadow-sm">
+        <button onclick="toggleMenu()" class="text-white w-10 h-10 -ml-2 mr-2 flex items-center justify-center rounded-full active:bg-white/10 transition-colors">
+            <span class="material-symbols-rounded" style="font-size: 28px;">menu</span>
+        </button>
+        <h1 class="text-[19px] font-normal tracking-wide text-white">UFSM Digital</h1>
+    </header>
+
+    <main class="px-3 space-y-3 pt-2">
+        
+        <section class="bg-[#303030] card-rounded p-2.5 shadow-lg">
+            <div class="flex items-start gap-3 mb-1">
+                <span class="material-symbols-rounded text-white" style="font-size: 26px;">restaurant</span>
+                <div class="mt-[-1px]">
+                    <h2 id="refeicao-titulo" class="text-[15px] font-medium text-white leading-tight">Próxima refeição - Almoço</h2>
+                    <p class="text-white text-[13px] mt-0.5">RU - Campus I</p>
+                </div>
+            </div>
+
+            <p id="data-refeicao" class="text-white text-[13px] mb-4 pl-9 mt-0.5">Carregando...</p>
+
+            <div class="pl-0 flex flex-col gap-[1px]">
+                <p class="food-item uppercase">ISCAS AO MOLHO (Carne)</p>
+                <p class="food-item">HAMBÚRGUER DE SOJA (marca Soja Mania)</p>
+                <p class="food-item text-[12px]">(2 unidades) (Opção vegetariana)</p>
+                <p class="food-item uppercase">PEPINO</p>
+                <p class="food-item uppercase">REPOLHO ROXO COM LARANJA</p>
+                <p class="food-item uppercase">ARROZ BRANCO</p>
+                <p class="food-item uppercase">ARROZ INTEGRAL</p>
+                <p class="food-item uppercase">FEIJÃO PRETO</p>
+                <p class="food-item uppercase">POLENTA RECHEADA COM QUEIJO</p>
+                <p class="food-item uppercase">BANANA (1 unidade)</p>
+                
+                <div class="pt-1 text-[12px] leading-snug">
+                    <span class="uppercase text-white">TEMPEROS:</span> 
+                    <span class="text-white">óleo composto de soja e oliva, sal, orégano, vinagre de maçã, vinagre de vinho tinto, molho de pimenta</span>
+                </div>
+            </div>
+
+            <div class="mt-6 text-[12px] text-white">
+                Agendamento não realizado
+            </div>
+        </section>
+
+        <section class="bg-[#303030] card-rounded p-2.5 shadow-lg pb-5">
+            <div class="flex items-start gap-3 mb-3">
+                <span class="material-symbols-rounded text-white" style="font-size: 26px;">directions_bus</span>
+                <h2 class="text-[15px] font-medium text-white mt-[-1px]">Horário de ônibus</h2>
+            </div>
+            
+            <div class="text-[13px] text-white space-y-1 pl-0">
+                <p id="bus-ida">Ida : UFSM - CENTRO - --:--</p>
+                <p id="bus-volta">Volta : CENTRO - UFSM - --:--</p>
+            </div>
+        </section>
+
+    </main>
+
+    <div class="fab-container">
+        <button onclick="window.location.href='carteira.html'" class="bg-[#cbe7ff] w-14 h-14 rounded-[16px] flex items-center justify-center shadow-lg transition-transform active:scale-95">
+            <i class="fa-regular fa-id-card text-[25px] text-[#003b5c]"></i>
+        </button>
+    </div>
+
+    <nav class="fixed bottom-0 w-full bg-[#001f24] h-[72px] grid grid-cols-3 z-40 pb-2">
+        
+        <div class="flex flex-col items-center justify-center cursor-pointer" onclick="window.location.reload()">
+            <div class="mb-1">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z" fill="#ffb74d"/>
+                </svg>
+            </div>
+            <span class="text-[11px] font-medium text-[#ffb74d]">Home</span>
+        </div>
+
+        <div class="flex flex-col items-center justify-center cursor-pointer text-[#90a4ae]">
+            <div>
+                <span class="material-symbols-rounded" style="font-size: 26px;">newspaper</span>
+            </div>
+            <span class="text-[11px] font-medium">Notícias</span>
+        </div>
+
+        <div class="flex flex-col items-center justify-center cursor-pointer text-[#90a4ae]">
+            <div >
+                <span class="material-symbols-rounded" style="font-size: 26px;">school</span>
+            </div>
+            <span class="text-[11px] font-medium">Calendário</span>
+        </div>
+    </nav>
+
+    <script>
+        // SCRIPT COMPLETO
+        
+        // 1. ANIMAÇÃO DO MENU LATERAL
+        function toggleMenu() {
+            const drawer = document.getElementById('drawer');
+            const overlay = document.getElementById('overlay');
+            
+            // Verifica se está fechado (tem a classe que joga para fora da tela)
+            const isClosed = drawer.classList.contains('-translate-x-full');
+            
+            if (isClosed) {
+                // ABRIR
+                drawer.classList.remove('-translate-x-full'); // Desliza para dentro
+                overlay.classList.remove('hidden'); // Prepara o display
+                // Pequeno delay para permitir que o navegador renderize antes de mudar a opacidade
+                setTimeout(() => {
+                    overlay.classList.remove('overlay-hidden');
+                    overlay.classList.add('overlay-visible');
+                }, 10);
+            } else {
+                // FECHAR
+                drawer.classList.add('-translate-x-full'); // Desliza para fora
+                overlay.classList.remove('overlay-visible');
+                overlay.classList.add('overlay-hidden'); // Inicia o Fade Out
+                
+                // Espera a animação de fade (300ms) acabar para esconder o elemento
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        // 2. INICIALIZAÇÃO DE DADOS E EVENTOS
+        document.addEventListener('DOMContentLoaded', () => {
+            // Lógica de Foto de Perfil
+            const fotoSalva = localStorage.getItem('fotoPerfilUsuario');
+            if (fotoSalva) {
+                document.getElementById('img-perfil').src = fotoSalva;
+            }
+
+            // Lógica de Dados (Ônibus e Refeição)
+            atualizarProximaRefeicao();
+            atualizarOnibus();
+            setInterval(atualizarOnibus, 60000); 
+        });
+
+        // 3. UPLOAD DE FOTO DE PERFIL
+        function carregarFoto(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imagemBase64 = e.target.result;
+                    document.getElementById('img-perfil').src = imagemBase64; // Atualiza visualmente
+                    localStorage.setItem('fotoPerfilUsuario', imagemBase64); // Salva no navegador
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 4. LÓGICA DE REFEIÇÃO
+        function atualizarProximaRefeicao() {
+            const dataElement = document.getElementById('data-refeicao');
+            const tituloElement = document.getElementById('refeicao-titulo');
+            
+            let dataAlvo = new Date();
+            const horas = dataAlvo.getHours();
+            const minutos = dataAlvo.getMinutes();
+            const tempoAtual = horas * 60 + minutos;
+
+            const FIM_ALMOCO = 13 * 60 + 30; 
+            const FIM_JANTAR = 19 * 60 + 30; 
+            const feriados = ['01/01', '21/04', '01/05', '07/09', '12/10', '02/11', '15/11', '25/12'];
+            let refeicao = "Almoço";
+
+            if (ehDiaUtil(dataAlvo, feriados)) {
+                if (tempoAtual < FIM_ALMOCO) {
+                    refeicao = "Almoço";
+                } else if (tempoAtual < FIM_JANTAR) {
+                    refeicao = "Jantar";
+                } else {
+                    refeicao = "Almoço";
+                    dataAlvo.setDate(dataAlvo.getDate() + 1);
+                    while (!ehDiaUtil(dataAlvo, feriados)) {
+                        dataAlvo.setDate(dataAlvo.getDate() + 1);
+                    }
+                }
+            } else {
+                refeicao = "Almoço";
+                while (!ehDiaUtil(dataAlvo, feriados)) {
+                    dataAlvo.setDate(dataAlvo.getDate() + 1);
+                }
+            }
+
+            tituloElement.textContent = `Próxima refeição - ${refeicao}`;
+            const opcoes = { day: 'numeric', month: 'long', year: 'numeric' };
+            dataElement.textContent = dataAlvo.toLocaleDateString('pt-BR', opcoes);
+        }
+
+        function ehDiaUtil(data, feriados) {
+            const diaSemana = data.getDay();
+            const diaMes = String(data.getDate()).padStart(2, '0');
+            const mes = String(data.getMonth() + 1).padStart(2, '0');
+            const dataFormatada = `${diaMes}/${mes}`;
+            if (diaSemana === 0 || diaSemana === 6) return false;
+            if (feriados.includes(dataFormatada)) return false;
+            return true;
+        }
+
+        // 5. LÓGICA DE ÔNIBUS
+        function atualizarOnibus() {
+            const elIda = document.getElementById('bus-ida');
+            const elVolta = document.getElementById('bus-volta');
+            const agora = new Date();
+            const minutosAtuais = agora.getHours() * 60 + agora.getMinutes();
+            const horariosIda = ['06:30', '07:30', '08:30', '11:30', '12:30', '13:30', '17:30', '18:30', '22:15'];
+            const horariosVolta = ['06:10', '07:10', '08:10', '11:10', '12:10', '13:10', '17:10', '18:10', '22:30'];
+            const proximaIda = encontrarProximoHorario(horariosIda, minutosAtuais);
+            const proximaVolta = encontrarProximoHorario(horariosVolta, minutosAtuais);
+            elIda.textContent = `Ida : UFSM - CENTRO - ${proximaIda}`;
+            elVolta.textContent = `Volta : CENTRO - UFSM - ${proximaVolta}`;
+        }
+
+        function encontrarProximoHorario(lista, minutosAtuais) {
+            for (let h of lista) {
+                const [hr, min] = h.split(':').map(Number);
+                if ((hr * 60 + min) > minutosAtuais) return h;
+            }
+            return lista[0]; 
+        }
+    </script>
+</body>
+</html>
