@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>e-Carteira</title>
+    <meta name="theme-color" content="#001f24">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="UFSM Digital">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png">
+    <link rel="icon" href="assets/images/icon-192.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,17 +20,211 @@
             font-family: 'Roboto', sans-serif;
             background-color: #ffffff;
             color: #000000;
+            overflow-x: hidden;
         }
 
         .bg-header-dark { background-color: #001f24; }
         .bg-header-light { background-color: #005b82; }
         .text-warning { color: #d32f2f; }
+
+        .drawer-transition {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
+        }
+
+        .overlay-transition {
+            transition: opacity 0.3s ease-out, visibility 0.3s;
+        }
+
+        .overlay-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .overlay-hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
+    <div id="overlay" class="fixed inset-0 bg-black/60 z-40 overlay-transition overlay-hidden backdrop-blur-[2px]" onclick="toggleMenu()"></div>
+
+    <aside id="drawer" class="fixed inset-y-0 left-0 w-[300px] bg-[#002229] z-50 transform -translate-x-full drawer-transition shadow-2xl h-full flex flex-col">
+        <div class="bg-[#004b6b] p-5 pt-8 pb-6">
+            <div class="flex justify-between items-start">
+                <div class="space-y-0.5">
+                    <p class="text-sm font-normal text-white">Bom dia</p>
+                    <p id="nome-usuario-menu" class="font-bold text-[17px] leading-tight text-white uppercase tracking-wide">PERFIL</p>
+                </div>
+
+                <div class="relative mt-1 group">
+                    <img id="img-perfil" src="assets/images/avatar-placeholder.svg" class="rounded-full w-[60px] h-[60px] border-2 border-white object-cover shadow-sm transition-opacity group-hover:opacity-80" alt="Perfil">
+                    <div class="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow-md flex items-center justify-center w-6 h-6">
+                        <i class="fa-solid fa-camera text-gray-600 text-[10px]"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5 text-[14px] font-medium text-white space-y-0.5">
+                <p>Saldo do RU: <span class="font-bold">R$ 15,81</span></p>
+                <p>Mensagens não lidas: 58</p>
+            </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto no-scrollbar py-2 bg-[#001f24]">
+            <a href="home.html" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fas fa-home w-8 text-[20px] text-white"></i>
+                <span class="font-medium text-white text-[15px]">Início</span>
+            </a>
+
+            <div class="border-t border-white/10 my-1"></div>
+
+            <div class="px-5 py-3 text-[15px] text-[#cae7f5] font-medium">Restaurante Universitário</div>
+
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-book-open w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Cardápio</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fas fa-dollar-sign w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Extrato</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fas fa-coins w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Recarga online</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="far fa-calendar-alt w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Agendar</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-list-check w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Agendamentos e refeições</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-magnifying-glass w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Filas agendamento</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-money-bill-transfer w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Transferência de crédito</span>
+            </a>
+            <a href="carteira.html" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-regular fa-id-card w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">e-Carteira</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-book w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Biblioteca</span>
+            </a>
+
+            <div class="border-t border-white/10 my-1"></div>
+
+            <div class="px-5 py-3 text-[15px] text-[#cae7f5] font-medium">Estudante</div>
+
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-file-lines w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Minhas disciplinas</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="far fa-calendar-alt w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Meus horários de aula</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-align-justify w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Avaliação ensino-aprendizagem</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-calendar-check w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Oficinas PRAE</span>
+            </a>
+
+            <div class="border-t border-white/10 my-1"></div>
+
+            <div class="px-5 py-3 text-[15px] text-[#cae7f5] font-medium">Ônibus</div>
+
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-bus w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Centro -> UFSM</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-bus w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">UFSM -> Centro</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-circle-info w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Sobre - Ônibus</span>
+            </a>
+
+            <div class="border-t border-white/10 my-1"></div>
+
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-regular fa-envelope w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Mensagens</span>
+            </a>
+
+            <div class="border-t border-white/10 my-1"></div>
+
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-list-check w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Questionário PDTI 2025</span>
+            </a>
+
+            <div class="border-t border-white/10 my-1"></div>
+
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-leaf w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Saúde Mental</span>
+            </a>
+
+            <div class="border-t border-white/10 my-1"></div>
+
+            <div class="px-5 py-3 text-[15px] text-[#cae7f5] font-medium">Utilitários</div>
+
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-circle-exclamation w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Registro de problema</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-key w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Alterar senha</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-heart w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">UFSM Pública</span>
+            </a>
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-user-graduate w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Moodle</span>
+            </a>
+            <a href="configuracoes.html" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-user-gear w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Editar perfil</span>
+            </a>
+
+            <div class="border-t border-white/10 my-1"></div>
+
+            <a href="#" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-info-circle w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Sobre</span>
+            </a>
+
+            <div class="border-t border-white/10 my-1"></div>
+
+            <a href="index.html" class="flex items-center px-5 py-3.5 hover:bg-white/5">
+                <i class="fa-solid fa-sign-out-alt w-8 text-[20px] text-[#b0bec5]"></i>
+                <span class="text-[#eceff1] text-[15px]">Sair</span>
+            </a>
+        </nav>
+    </aside>
+
     <header class="bg-header-dark flex items-center justify-between px-4 h-14 sticky top-0 z-30">
         <div class="flex items-center gap-4">
-            <button onclick="window.location.href='home.html'" class="text-white text-xl" aria-label="Voltar">
+            <button onclick="toggleMenu()" class="text-white text-xl" aria-label="Abrir menu">
                 <i class="fa-solid fa-bars"></i>
             </button>
             <h1 class="text-[20px] font-normal text-white">e-Carteira</h1>
@@ -42,13 +244,13 @@
 
     <main class="flex-1 flex flex-col items-center px-5 pt-4 pb-8">
         <div class="p-[2px] border-2 border-[#005b82] rounded-xl mt-1 bg-[#f7fbfd]">
-            <img id="foto-carteira" src="https://via.placeholder.com/150" class="w-[125px] h-[125px] object-contain rounded-lg bg-[#f7fbfd]" alt="Foto do estudante">
+            <img id="foto-carteira" src="assets/images/avatar-placeholder.svg" class="w-[125px] h-[125px] object-contain rounded-lg bg-[#f7fbfd]" alt="Foto do estudante">
         </div>
 
-        <h2 id="nome-carteira" class="mt-4 text-[19px] font-normal uppercase tracking-wide text-center">PEDRO RUIZ SANGOI</h2>
+        <h2 id="nome-carteira" class="mt-4 text-[19px] font-normal uppercase tracking-wide text-center">--</h2>
 
         <div class="mt-4 mb-3">
-            <img id="qr-carteira" src="https://api.qrserver.com/v1/create-qr-code/?size=128x128&data=202320652" class="w-[112px] h-[112px]" alt="QR Code">
+            <img id="qr-carteira" src="assets/images/qr-placeholder.svg" class="w-[112px] h-[112px]" alt="QR Code">
         </div>
 
         <p id="data-geracao" class="text-[14px] text-gray-800 mb-2">Carregando data...</p>
@@ -59,7 +261,7 @@
 
         <div class="w-full text-left mb-6">
             <h3 class="text-[17px] font-normal border-b border-gray-400 pb-1 mb-2">Vínculo(s)</h3>
-            <p id="vinculo-carteira" class="text-[15px] px-1">(202320652) Estudante de Graduação</p>
+            <p id="vinculo-carteira" class="text-[15px] px-1">--</p>
         </div>
 
         <div class="w-full text-left">
@@ -72,7 +274,7 @@
                 </div>
                 <div>
                     <p class="text-[11px] font-medium text-gray-900 uppercase">RG</p>
-                    <p id="rg-carteira" class="text-[15px]">6122921304</p>
+                    <p id="rg-carteira" class="text-[15px]">--</p>
                 </div>
                 <div>
                     <p class="text-[11px] font-medium text-gray-900 uppercase">Morador CEU?</p>
@@ -80,14 +282,41 @@
                 </div>
                 <div>
                     <p class="text-[11px] font-medium text-gray-900 uppercase">Data de Nascimento</p>
-                    <p id="nascimento-carteira" class="text-[15px]">05/07/2002</p>
+                    <p id="nascimento-carteira" class="text-[15px]">--/--/----</p>
                 </div>
             </div>
         </div>
     </main>
 
     <script src="assets/js/conta.js"></script>
+    <script src="assets/js/pwa.js"></script>
     <script>
+        function toggleMenu() {
+            const drawer = document.getElementById('drawer');
+            const overlay = document.getElementById('overlay');
+            const isClosed = drawer.classList.contains('-translate-x-full');
+
+            if (isClosed) {
+                drawer.classList.remove('-translate-x-full');
+                setTimeout(() => {
+                    overlay.classList.remove('overlay-hidden');
+                    overlay.classList.add('overlay-visible');
+                }, 10);
+            } else {
+                drawer.classList.add('-translate-x-full');
+                overlay.classList.remove('overlay-visible');
+                overlay.classList.add('overlay-hidden');
+            }
+        }
+
+        function atualizarDadosDoMenu() {
+            const conta = UFSMDigitalConta.ensure();
+            const foto = UFSMDigitalConta.getPhotoSrc(conta.foto);
+
+            document.getElementById('nome-usuario-menu').textContent = conta.nome ? conta.nome.toUpperCase() : 'PERFIL';
+            document.getElementById('img-perfil').src = foto;
+        }
+
         function atualizarDataGeracao() {
             const elementoData = document.getElementById('data-geracao');
             const agora = new Date();
@@ -102,23 +331,27 @@
 
         function atualizarCarteira() {
             const conta = UFSMDigitalConta.ensure();
-            const foto = conta.foto || 'https://via.placeholder.com/150';
+            const foto = UFSMDigitalConta.getPhotoSrc(conta.foto);
 
             document.getElementById('foto-carteira').src = foto;
-            document.getElementById('nome-carteira').textContent = conta.nome.toUpperCase();
-            document.getElementById('cpf-carteira').textContent = UFSMDigitalConta.formatCPF(conta.cpf);
-            document.getElementById('rg-carteira').textContent = conta.rg;
+            document.getElementById('nome-carteira').textContent = conta.nome ? conta.nome.toUpperCase() : '--';
+            document.getElementById('cpf-carteira').textContent = conta.cpf ? UFSMDigitalConta.formatCPF(conta.cpf) : '--';
+            document.getElementById('rg-carteira').textContent = conta.rg || '--';
             document.getElementById('nascimento-carteira').textContent = UFSMDigitalConta.formatDateDisplay(conta.dataNascimento);
-            document.getElementById('vinculo-carteira').textContent = `(${conta.matricula}) Estudante de Graduação`;
-            document.getElementById('qr-carteira').src = `https://api.qrserver.com/v1/create-qr-code/?size=128x128&data=${encodeURIComponent(conta.matricula)}`;
+            document.getElementById('vinculo-carteira').textContent = conta.matricula ? `(${conta.matricula}) Estudante de Graduação` : '--';
+            document.getElementById('qr-carteira').src = conta.matricula
+                ? `https://api.qrserver.com/v1/create-qr-code/?size=128x128&data=${encodeURIComponent(conta.matricula)}`
+                : 'assets/images/qr-placeholder.svg';
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            atualizarDadosDoMenu();
             atualizarCarteira();
             atualizarDataGeracao();
         });
 
         window.addEventListener('pageshow', () => {
+            atualizarDadosDoMenu();
             atualizarCarteira();
             atualizarDataGeracao();
         });

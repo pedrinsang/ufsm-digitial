@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>UFSM Digital</title>
+    <meta name="theme-color" content="#001f24">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="UFSM Digital">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png">
+    <link rel="icon" href="assets/images/icon-192.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0">
@@ -79,11 +87,11 @@
             <div class="flex justify-between items-start">
                 <div class="space-y-0.5">
                     <p class="text-sm font-normal text-white">Bom dia</p>
-                    <p id="nome-usuario-menu" class="font-bold text-[17px] leading-tight text-white uppercase tracking-wide">PEDRO RUIZ SANGOI</p>
+                    <p id="nome-usuario-menu" class="font-bold text-[17px] leading-tight text-white uppercase tracking-wide">PERFIL</p>
                 </div>
 
                 <div class="relative mt-1 group">
-                    <img id="img-perfil" src="https://via.placeholder.com/150" class="rounded-full w-[60px] h-[60px] border-2 border-white object-cover shadow-sm transition-opacity group-hover:opacity-80" alt="Perfil">
+                    <img id="img-perfil" src="assets/images/avatar-placeholder.svg" class="rounded-full w-[60px] h-[60px] border-2 border-white object-cover shadow-sm transition-opacity group-hover:opacity-80" alt="Perfil">
                     <div class="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow-md flex items-center justify-center w-6 h-6">
                         <i class="fa-solid fa-camera text-gray-600 text-[10px]"></i>
                     </div>
@@ -299,9 +307,38 @@
     </main>
 
     <div class="fab-container">
-        <button onclick="window.location.href='carteira.html'" class="bg-[#cbe7ff] w-14 h-14 rounded-[16px] flex items-center justify-center shadow-lg transition-transform active:scale-95">
-            <i class="fa-regular fa-id-card text-[25px] text-[#003b5c]"></i>
+        <button id="primary-fab" type="button" class="bg-[#cbe7ff] w-14 h-14 rounded-[16px] flex items-center justify-center shadow-lg transition-all active:scale-95">
+            <i id="primary-fab-icon" class="fa-regular fa-id-card text-[25px] text-[#003b5c]"></i>
+            <span id="primary-fab-label" class="hidden text-[14px] font-bold text-[#003b5c]">Instalar</span>
         </button>
+    </div>
+
+    <div id="ios-install-modal" class="hidden fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm px-4 py-6">
+        <div class="max-w-sm mx-auto h-full flex items-center justify-center">
+            <div class="w-full bg-[#0f172a] border border-white/10 rounded-[28px] shadow-2xl overflow-hidden">
+                <div class="px-5 py-4 border-b border-white/10 flex items-start justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg font-medium text-white">Instalar no iPhone</h2>
+                        <p class="text-sm text-slate-300 mt-1">No Safari, adicione o site a Tela de Inicio para usar como app.</p>
+                    </div>
+                    <button id="ios-install-close" type="button" class="w-10 h-10 rounded-full text-white active:bg-white/10 transition-colors" aria-label="Fechar">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="px-5 py-5 space-y-4 text-sm text-slate-200">
+                    <div class="rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
+                        1. Toque no botao <strong>Compartilhar</strong> do Safari.
+                    </div>
+                    <div class="rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
+                        2. Role as opcoes e toque em <strong>Adicionar a Tela de Inicio</strong>.
+                    </div>
+                    <div class="rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
+                        3. Confirme em <strong>Adicionar</strong>. Depois disso, o botao volta ao modo normal.
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <nav class="fixed bottom-0 w-full bg-[#001f24] h-[72px] grid grid-cols-3 z-40 pb-2">
@@ -330,6 +367,7 @@
     </nav>
 
     <script src="assets/js/conta.js"></script>
+    <script src="assets/js/pwa.js"></script>
     <script>
         function toggleMenu() {
             const drawer = document.getElementById('drawer');
@@ -351,9 +389,9 @@
 
         function atualizarDadosDaConta() {
             const conta = UFSMDigitalConta.ensure();
-            const foto = conta.foto || 'https://via.placeholder.com/150';
+            const foto = UFSMDigitalConta.getPhotoSrc(conta.foto);
 
-            document.getElementById('nome-usuario-menu').textContent = conta.nome.toUpperCase();
+            document.getElementById('nome-usuario-menu').textContent = conta.nome ? conta.nome.toUpperCase() : 'PERFIL';
             document.getElementById('img-perfil').src = foto;
         }
 

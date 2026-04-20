@@ -2,14 +2,24 @@
     const STORAGE_KEY = 'ufsmDigitalConta';
     const LEGACY_PHOTO_KEY = 'fotoPerfilUsuario';
     const LEGACY_MATRICULA_KEY = 'matriculaUsuario';
+    const PHOTO_PLACEHOLDER = 'assets/images/avatar-placeholder.svg';
 
-    const DEFAULT_DATA = {
+    const SEEDED_SAMPLE_DATA = {
         nome: 'Pedro Ruiz Sangoi',
         foto: '',
         dataNascimento: '2002-07-05',
         cpf: '04491974098',
         rg: '6122921304',
         matricula: '202320652'
+    };
+
+    const DEFAULT_DATA = {
+        nome: '',
+        foto: '',
+        dataNascimento: '',
+        cpf: '',
+        rg: '',
+        matricula: ''
     };
 
     function somenteDigitos(valor) {
@@ -55,6 +65,19 @@
         };
     }
 
+    function ehDadosDeExemplo(dados = {}) {
+        const atual = normalizarDados(dados);
+
+        return (
+            atual.nome === SEEDED_SAMPLE_DATA.nome &&
+            atual.dataNascimento === SEEDED_SAMPLE_DATA.dataNascimento &&
+            atual.cpf === SEEDED_SAMPLE_DATA.cpf &&
+            atual.rg === SEEDED_SAMPLE_DATA.rg &&
+            atual.matricula === SEEDED_SAMPLE_DATA.matricula &&
+            atual.foto === SEEDED_SAMPLE_DATA.foto
+        );
+    }
+
     function lerDadosSalvos() {
         const raw = localStorage.getItem(STORAGE_KEY);
 
@@ -71,13 +94,15 @@
 
     function obterDados() {
         const legadoFoto = localStorage.getItem(LEGACY_PHOTO_KEY) || '';
-        const legadoMatricula = localStorage.getItem(LEGACY_MATRICULA_KEY) || '';
-        const dadosSalvos = lerDadosSalvos() || {};
+        const legadoMatriculaBruta = localStorage.getItem(LEGACY_MATRICULA_KEY) || '';
+        const legadoMatricula = legadoMatriculaBruta === SEEDED_SAMPLE_DATA.matricula ? '' : legadoMatriculaBruta;
+        const dadosSalvosBrutos = lerDadosSalvos() || {};
+        const dadosSalvos = ehDadosDeExemplo(dadosSalvosBrutos) ? {} : dadosSalvosBrutos;
 
         return normalizarDados({
             ...dadosSalvos,
-            foto: dadosSalvos.foto || legadoFoto || DEFAULT_DATA.foto,
-            matricula: dadosSalvos.matricula || legadoMatricula || DEFAULT_DATA.matricula
+            foto: dadosSalvos.foto || legadoFoto || '',
+            matricula: dadosSalvos.matricula || legadoMatricula || ''
         });
     }
 
@@ -100,9 +125,10 @@
     }
 
     function garantirDadosIniciais() {
+        const dadosSalvos = lerDadosSalvos();
         const dados = obterDados();
 
-        if (!lerDadosSalvos()) {
+        if (!dadosSalvos || ehDadosDeExemplo(dadosSalvos)) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
         }
 
@@ -110,11 +136,17 @@
         return dados;
     }
 
+    function obterFotoOuPlaceholder(foto) {
+        return String(foto || '').trim() || PHOTO_PLACEHOLDER;
+    }
+
     window.UFSMDigitalConta = {
         STORAGE_KEY,
         DEFAULT_DATA,
+        PHOTO_PLACEHOLDER,
         ensure: garantirDadosIniciais,
         getData: obterDados,
+        getPhotoSrc: obterFotoOuPlaceholder,
         saveData: salvarDados,
         formatCPF: formatarCPF,
         formatDateDisplay: formatarDataExibicao,
